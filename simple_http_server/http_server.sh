@@ -21,21 +21,16 @@ function server () {
             filepath="./www/$path"
             if [[ -f $filepath ]]
             then
-                echo -e "HTTP/1.1 200 OK\r\n"
-                echo "Content-Length: $(wc -c < $filepath)"
-                echo "Content-Type: text/html; charset=utf-8"
-                echo -e "$(cat $filepath)\r\n"
+                echo -ne "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: $(wc -c <'./www/'$path)\r\n\r\n"; cat "./www/$path"
             else
-                echo "HTTP/1.1 404 Not Found"
-                echo "Content-Length: 0"
+                echo -ne 'HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n'
             fi
         else
-            echo "HTTP1.1 400 Bad Request"
-            echo "Content-Length: 0"
+            echo -ne 'HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n'
         fi
     done
 }
 
 coproc SERVER_PROCESS { server; }
 
-nc -klvp 2345 <&${SERVER_PROCESS[0]} >&${SERVER_PROCESS[1]}
+nc -klvp 8080 <&${SERVER_PROCESS[0]} >&${SERVER_PROCESS[1]}
